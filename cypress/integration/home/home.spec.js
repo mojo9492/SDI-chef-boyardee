@@ -32,23 +32,20 @@ describe("Home page", () => {
                 expect(cy.findByRole('listitem', /tofu scramble tacos/i)).toExist();
             })
     })
+    it('displays all recipes that were passed in', () => {
 
-    it('displays all recipes that were passed in', async () => {
-        const recipeName = 'Goya';
+
+        const recipeName = 'Tofu Scramble Tacos';
         cy.findByRole('button').click()
         cy.findByRole('textbox', { name: /Recipe name/i }).type(recipeName)
-        cy.findByRole('textbox', { name: /instructions/i }).type('remove center, slice thinly and serve')
+        cy.findByRole('textbox', { name: /instructions/i }).type("1. heat a skillet on medium with a dollop of coconut oil {enter} 2. warm flour tortillas")
 
-        cy.findByRole('button').click()
 
-        const secondRecipeName = 'Taco-rice'
-        cy.findByRole('button').click()
-        cy.findByRole('textbox', { name: /Recipe name/i }).type(secondRecipeName)
-        cy.findByRole('textbox', { name: /instructions/i }).type('press rice in shape of taco shell and throw in trash')
-
-        await cy.findByRole('button').click()
+        return cy.findByRole('button').click()
             .then(() => {
-                expect(cy.findByRole('list', <ul><li>Goya</li><li>Taco-rice</li></ul>)).toExist();
+                cy.get('list').should('have.length', 2)
+                cy.get('listitem').should('have.value', /tofu scramble tacos/i)
+                cy.get('listitem').should('have.value', /^goya$/i)
             })
 
     })
