@@ -1,6 +1,6 @@
 //src App.test.js
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { getByRole, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 
@@ -35,19 +35,6 @@ const setup = () => {
   }
 }
 
-test('recipe name from state appears in an unordered list', async () => {
-  const {instructionsInput, nameInput, submitButton} = setup();
-  const recipeName = "Lean Pockets"
-  const recipeInstructions = "place in toaster oven on 350 for 45 minutes"
-
-  await userEvent.type(instructionsInput, recipeInstructions)
-  await userEvent.type(nameInput, recipeName)
-  userEvent.click(submitButton);
-
-  expect(screen.getByRole('listitem')).toBeInTheDocument();
-  expect(screen.getByText(recipeName)).toBeInTheDocument();
-})
-
 test('typing in the recipe name makes the recipe name appear in the input', async () => {
   render(<App />);
 
@@ -60,7 +47,7 @@ test('typing in the recipe name makes the recipe name appear in the input', asyn
 
 
 test('typing in the recipe instructions makes the instructions appear in the form', async () => {
-  const {instructionsInput} = setup();
+  const { instructionsInput } = setup();
 
   const recipeInstructions = "kinda hard to write instructions without knowing what I'm cooking"
 
@@ -68,3 +55,36 @@ test('typing in the recipe instructions makes the instructions appear in the for
   expect(instructionsInput.value).toEqual(recipeInstructions);
 })
 
+test('recipe name from state appears in an unordered list', async () => {
+  const { instructionsInput, nameInput, submitButton } = setup();
+  const recipeName = "Lean Pockets"
+  const recipeInstructions = "place in toaster oven on 350 for 45 minutes"
+
+  await userEvent.type(instructionsInput, recipeInstructions)
+  await userEvent.type(nameInput, recipeName)
+  userEvent.click(submitButton);
+
+  expect(screen.getByRole('listitem')).toBeInTheDocument();
+  expect(screen.getByText(recipeName)).toBeInTheDocument();
+})
+
+test('recipe name should persist when home', async () => {
+  const { instructionsInput, nameInput, submitButton } = setup();
+  const recipeName = "burnt-tarts"
+  const recipeInstructions = "place in over until on fire, douse with water, serve immediately"
+
+  await userEvent.type(nameInput, recipeName)
+  await userEvent.type(instructionsInput, recipeInstructions)
+  userEvent.click(submitButton);
+
+
+  const secondRecipeName = 'microwaved-beets';
+  const secondRecipeInstructions = 'let beet dry in sun for 42 days, then microwave until pulp, serve over burnt-tarts';
+
+  await userEvent.type(nameInput, secondRecipeName)
+  await userEvent.type(instructionsInput, secondRecipeInstructions);
+  userEvent.click(submitButton)
+
+  expect(screen.getByRole('listitem').innerHTML).toEqual('burnt-tarts');
+  expect(screen.getByRole('listitem').innerHTML).toEqual('microwaved-beets');
+})
