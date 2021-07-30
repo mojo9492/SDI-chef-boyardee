@@ -68,6 +68,21 @@ test('recipe name from state appears in an unordered list', async () => {
   expect(screen.getByText(recipeName)).toBeInTheDocument();
 })
 
+test('Recipe name & Instruction fields should clear when user submits', async () => {
+  const { instructionsInput, nameInput, submitButton } = setup();
+
+  const secondRecipeName = 'microwaved-beets';
+  const secondRecipeInstructions = 'let beet dry in sun for 42 days, then microwave until pulp, serve over burnt-tarts';
+
+  await userEvent.type(nameInput, secondRecipeName)
+  await userEvent.type(instructionsInput, secondRecipeInstructions);
+  userEvent.click(submitButton)
+
+  expect(screen.getByRole('textbox', { name: 'Recipe name:' }).value).toEqual("")
+  expect(screen.getByRole('textbox', { name: 'Instructions:' }).value).toEqual('')
+
+})
+
 test('recipe name should persist when home', async () => {
   const { instructionsInput, nameInput, submitButton } = setup();
   const recipeName = "burnt-tarts"
@@ -77,7 +92,6 @@ test('recipe name should persist when home', async () => {
   await userEvent.type(instructionsInput, recipeInstructions)
   userEvent.click(submitButton);
 
-
   const secondRecipeName = 'microwaved-beets';
   const secondRecipeInstructions = 'let beet dry in sun for 42 days, then microwave until pulp, serve over burnt-tarts';
 
@@ -85,6 +99,6 @@ test('recipe name should persist when home', async () => {
   await userEvent.type(instructionsInput, secondRecipeInstructions);
   userEvent.click(submitButton)
 
-  expect(screen.getByRole('listitem').innerHTML).toEqual('burnt-tarts');
-  expect(screen.getByRole('listitem').innerHTML).toEqual('microwaved-beets');
+  expect(screen.getByText(recipeName)).toBeInTheDocument();
+  expect(screen.getByText(secondRecipeName)).toBeInTheDocument();
 })

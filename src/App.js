@@ -1,19 +1,32 @@
 import React from 'react';
 
 class App extends React.Component {
-  state = {
-    isAddRecipeFormDisplayed: false,
-    recipes: [],
-    newRecipeName: "",
-    newRecipeInstructions: ''
+  constructor() {
+    super()
+    this.state = {
+      isAddRecipeFormDisplayed: false,
+      recipes:[],
+      newRecipeName: "",
+      newRecipeInstructions: ''
+    }
+  }
+
+  componentDidMount = () => {
+    const recipes = window.localStorage.getItem('recipes');
+
+    if (recipes) {
+      console.log('recipes', recipes)
+      this.setState({recipes: recipes})
+    } else {this.setState(prevState => prevState)}  
   }
 
   handleChange = (event) => {
     const target = event.target;
     const name = target.name;
 
-    this.setState( { [name]: target.value });
+    this.setState({ [name]: target.value });
   }
+
 
   toggleAddRecipeForm = () => {
     this.setState({ isAddRecipeFormDisplayed: !this.state.isAddRecipeFormDisplayed })
@@ -22,13 +35,27 @@ class App extends React.Component {
   submitRecipe = (event) => {
     event.preventDefault()
 
-    this.setState({
-      recipes: [
+    this.setState((prevState) => {
+      console.log('prevStat', prevState.recipes)
+      window.localStorage.setItem('recipes', JSON.stringify({
+        recipes: [
+          {
+            name: this.state.newRecipeName,
+            instructions: this.state.newRecipeInstructions,
+          }
+        ]
+      }))
+
+      return {
+        recipes: [
+    
         {
           name: this.state.newRecipeName,
-          instructions: this.state.newRecipeInstructions
+          instructions: this.state.newRecipeInstructions,
         }
-      ]
+        ],
+        newRecipeName: "", newRecipeInstructions: ''
+      }
     })
   }
 
@@ -52,24 +79,27 @@ class App extends React.Component {
       </form>
     )
 
-    return (
-      <div className="App">
-        <h1 className="App-header">My Recipes</h1>
-        {
-          this.state.isAddRecipeFormDisplayed
-          ? addNewRecipeForm
-          : <button id="add-recipe" onClick={this.toggleAddRecipeForm}>Add Recipe</button>
-        }
-     
-{
-  this.state.recipes.length > 0 ?
-  <ul>
-    <li>{ this.state.recipes[0].name }</li>
-  </ul> :
-  <p>There are no recipes to list.</p>
-}
-      </div>
-    )
+    if (this.state.recipes) {
+      return (
+        <div className="App">
+          <h1 className="App-header">My Recipes</h1>
+          {
+            this.state.isAddRecipeFormDisplayed
+              ? addNewRecipeForm
+              : <button id="add-recipe" onClick={this.toggleAddRecipeForm}>Add Recipe</button>
+          }
+          {
+            this.state.recipes.length > 0 ?
+              <ul>
+                {this.state.recipes.map((recipe, index) => <li id={recipe.name} name={recipe.name} key={index + recipe.name}>{recipe.name}</li>)}
+              </ul> :
+              <p>There are no recipes to list.</p>
+          }
+        </div>
+      )
+    } else {
+      return (<div>Nothing to load</div>)
+    }
   }
 }
 
