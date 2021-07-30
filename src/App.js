@@ -7,7 +7,9 @@ class App extends React.Component {
       isAddRecipeFormDisplayed: false,
       recipes: [],
       newRecipeName: "",
-      newRecipeInstructions: ''
+      newRecipeInstructions: '',
+      selectedRecipe: -1,
+      isHidden: true
     }
   }
   // wirte json data to recipe array 
@@ -15,7 +17,6 @@ class App extends React.Component {
     const state = JSON.parse(window.localStorage.getItem('recipes'));
 
     if (state) {
-      console.log('recipes', state[0])
       this.setState({ recipes: state.recipes })
     } else { this.setState(prevState => prevState) }
   }
@@ -36,7 +37,6 @@ class App extends React.Component {
     event.preventDefault()
     //.Then(local storage)
     this.setState((prevState) => {
-      console.log('prevStat', prevState.recipes)
       window.localStorage.setItem('recipes', JSON.stringify({
         recipes: [
           ...prevState.recipes,
@@ -48,6 +48,7 @@ class App extends React.Component {
       }))
 
       return {
+        ...prevState,
         recipes: [
           ...prevState.recipes,
           {
@@ -58,6 +59,12 @@ class App extends React.Component {
         newRecipeName: "", newRecipeInstructions: ''
       }
     })
+  }
+
+  hideInstructions = (index) => {
+    this.state.selectedRecipe === index ?
+      this.setState(prevState => ({ ...prevState, selectedRecipe: -1 })) :
+      this.setState(prevState => ({ ...prevState, selectedRecipe: index }))
   }
 
 
@@ -94,7 +101,15 @@ class App extends React.Component {
           {
             this.state.recipes.length > 0 ?
               <ul>
-                {this.state.recipes.map((recipe, index) => <li id={recipe.name} name={recipe.name} key={index + recipe.name}>{recipe.name}</li>)}
+                {this.state.recipes.map((recipe, index) => {
+                  return (
+                    <li key={index + recipe.name} id={recipe.name} name={recipe.name} onClick={() => this.hideInstructions(index)}>
+                      {recipe.name}
+                      <p id={index} hidden={this.state.selectedRecipe === index ? false : true}>{recipe.instructions}</p>
+                    </li>
+                  )
+                }
+                )}
               </ul> :
               <p>There are no recipes to list.</p>
           }

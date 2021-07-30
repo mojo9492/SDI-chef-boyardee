@@ -1,8 +1,10 @@
 //src App.test.js
 import React from 'react';
-import { getByRole, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
+
+beforeEach(() => window.localStorage.clear())
 
 test('Add recipe button toggles visibility of a form on the page', () => {
   render(<App />);
@@ -101,4 +103,20 @@ test('recipe name should persist when home', async () => {
 
   expect(screen.getByText(recipeName)).toBeInTheDocument();
   expect(screen.getByText(secondRecipeName)).toBeInTheDocument();
+})
+
+test('when recipe name is clicked, instructions appear underneath', async () => {
+  const { instructionsInput, nameInput, submitButton } = setup();
+  const recipeName = "burnt-tarts"
+  const recipeInstructions = "place in oven until on fire, douse with water, serve immediately"
+
+  await userEvent.type(nameInput, recipeName)
+  await userEvent.type(instructionsInput, recipeInstructions)
+  userEvent.click(submitButton);
+
+  const recipeItem = await screen.findByText(recipeName)
+
+  await userEvent.click(recipeItem)
+
+  expect(screen.getByText(recipeInstructions)).toBeInTheDocument();
 })
