@@ -5,19 +5,19 @@ class App extends React.Component {
     super()
     this.state = {
       isAddRecipeFormDisplayed: false,
-      recipes:[],
+      recipes: [],
       newRecipeName: "",
       newRecipeInstructions: ''
     }
   }
-
+  // wirte json data to recipe array 
   componentDidMount = () => {
-    const recipes = window.localStorage.getItem('recipes');
+    const state = JSON.parse(window.localStorage.getItem('recipes'));
 
-    if (recipes) {
-      console.log('recipes', recipes)
-      this.setState({recipes: recipes})
-    } else {this.setState(prevState => prevState)}  
+    if (state) {
+      console.log('recipes', state[0])
+      this.setState({ recipes: state.recipes })
+    } else { this.setState(prevState => prevState) }
   }
 
   handleChange = (event) => {
@@ -34,11 +34,12 @@ class App extends React.Component {
 
   submitRecipe = (event) => {
     event.preventDefault()
-
+    //.Then(local storage)
     this.setState((prevState) => {
       console.log('prevStat', prevState.recipes)
       window.localStorage.setItem('recipes', JSON.stringify({
         recipes: [
+          ...prevState.recipes,
           {
             name: this.state.newRecipeName,
             instructions: this.state.newRecipeInstructions,
@@ -48,11 +49,11 @@ class App extends React.Component {
 
       return {
         recipes: [
-    
-        {
-          name: this.state.newRecipeName,
-          instructions: this.state.newRecipeInstructions,
-        }
+          ...prevState.recipes,
+          {
+            name: this.state.newRecipeName,
+            instructions: this.state.newRecipeInstructions,
+          }
         ],
         newRecipeName: "", newRecipeInstructions: ''
       }
@@ -78,6 +79,8 @@ class App extends React.Component {
         <input type="submit" />
       </form>
     )
+
+
 
     if (this.state.recipes) {
       return (
